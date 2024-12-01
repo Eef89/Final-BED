@@ -26,13 +26,12 @@ router.get("/", async (req, res) => {
 
 router.get(
   "/:id",
-  authMiddleware,
   async (req, res, next) => {
     try {
       const { id } = req.params;
-      const user = await getBookingById(id);
+      const booking = await getBookingById(id);
 
-      res.status(200).json(user);
+      res.status(200).json(booking);
     } catch (error) {
       next(error);
     }
@@ -120,12 +119,10 @@ router.post("/", authMiddleware, async (req, res, next) => {
     res.status(201).json(newBooking);
   } catch (error) {
     if (error.name === "NotFoundError") {
-      res
-        .status(409)
-        .json({
-          message:
-            "User or Property does not exist...., so can not make the Booking",
-        });
+      res.status(409).json({
+        message:
+          "User or Property does not exist...., so can not make the Booking",
+      });
     } else if (error.name === "PrismaClientValidationError") {
       res.status(400).json({ message: `User fault: ${error.message}` });
     } else {

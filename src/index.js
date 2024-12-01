@@ -1,9 +1,12 @@
 import express from "express";
-import loginRouter from "./routes/login.js";
+//handlers
 import log from "./middleware/log.js";
-import userRouter from "./routes/users.js";
 import errorHandler from "./middleware/errorHandler.js";
+//routers
+import loginRouter from "./routes/login.js";
+import userRouter from "./routes/users.js";
 import bookingRouter from "./routes/bookings.js";
+import hostRouter from "./routes/hosts.js";
 
 const app = express();
 
@@ -17,6 +20,7 @@ app.get("/", (req, res) => {
 app.use("/login", loginRouter);
 app.use("/users", userRouter);
 app.use("/bookings", bookingRouter);
+app.use("/hosts", hostRouter);
 
 app.use(errorHandler);
 
