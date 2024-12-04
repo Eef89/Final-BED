@@ -13,8 +13,11 @@ router.get("/", async (req, res) => {
   try {
     const { userId } = req.query;
     const hosts = await getHosts(userId);
-
-    res.status(200).json(hosts);
+    const hostsWithoutPassword = hosts.map(
+      ({ password, ...restOfHost }) => restOfHost
+    );
+    res.status(200).json(hostsWithoutPassword);
+    // res.status(200).json(hosts);
   } catch (error) {
     next(error);
   }
