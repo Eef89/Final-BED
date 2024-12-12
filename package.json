@@ -11,13 +11,16 @@
     "dev": "nodemon src/index.js",
     "test-positive": "newman run \"./postman/collections/Bookings API.json\" -e \"./postman/environments/Local.postman_environment.json\"",
     "test-negative": "newman run \"./postman/collections/Bookings API Negative.json\" -e \"./postman/environments/Local.postman_environment.json\"",
-    "test": "npm run test-positive && npm run test-negative"
+    "test": "npm run test-positive && npm run test-negative",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org non-o0t --project express-booking ./package.json && sentry-cli sourcemaps upload --org non-o0t --project express-booking ./package.json"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.22.0",
-    "@sentry/node": "^7.64.0",
+    "@sentry/cli": "^2.39.1",
+    "@sentry/node": "^7.120.1",
+    "@sentry/profiling-node": "^8.44.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
