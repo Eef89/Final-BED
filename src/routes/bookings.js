@@ -11,7 +11,7 @@ const router = express.Router();
 
 // get bookings
 
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
   try {
     const { userId } = req.query;
     const bookings = await getBookings(userId);
@@ -94,7 +94,7 @@ router.put(
   notFoundErrorHandler
 );
 
-// add booking (add middleware!)
+// add booking
 
 router.post("/", authMiddleware, async (req, res, next) => {
   try {
@@ -119,6 +119,7 @@ router.post("/", authMiddleware, async (req, res, next) => {
     res.status(201).json(newBooking);
   } catch (error) {
     if (error.name === "NotFoundError") {
+      // Not in use right now. Can be used by running a test first, if user or revies exists.
       res.status(409).json({
         message:
           "User or Property does not exist...., so can not make the Booking",

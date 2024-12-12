@@ -11,7 +11,7 @@ const router = express.Router();
 
 // get users
 
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
   try {
     const { email, username } = req.query;
     const users = await getUsers(email, username);
@@ -19,6 +19,10 @@ router.get("/", async (req, res) => {
     const usersWithoutPassword = users.map(
       ({ password, ...restOfUser }) => restOfUser
     );
+    // onderstaande om enkel een bepaalde waarde uit de review te
+    // const result = usersWithoutPassword.map((post) => {
+    //   return { ...post, reviews: post.reviews.map((tag) => tag.id) };
+    // });
     res.status(200).json(usersWithoutPassword);
   } catch (error) {
     next(error);
@@ -89,7 +93,7 @@ router.put(
   notFoundErrorHandler
 );
 
-// add user (add middleware!)
+// add user
 
 router.post("/", authMiddleware, async (req, res, next) => {
   try {

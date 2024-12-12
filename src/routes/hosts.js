@@ -1,23 +1,30 @@
 import express from "express";
 import getHosts from "../services/hosts/getHosts.js";
 import getHostById from "../services/hosts/getHostById.js";
+import updateHostById from "../services/hosts/updateHostById.js";
 import notFoundErrorHandler from "../middleware/notFoundErrorHandler.js";
 import deleteHost from "../services/hosts/deleteHost.js";
 import authMiddleware from "../middleware/auth.js";
+import createHost from "../services/hosts/createHost.js";
 
 const router = express.Router();
 
 // get hosts
 
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
   try {
-    const { userId } = req.query;
-    const hosts = await getHosts(userId);
+    const { name } = req.query;
+    const hosts = await getHosts(name);
     const hostsWithoutPassword = hosts.map(
       ({ password, ...restOfHost }) => restOfHost
     );
-    res.status(200).json(hostsWithoutPassword);
-    // res.status(200).json(hosts);
+    const result = hostsWithoutPassword.map((post) => {
+      return {
+        ...post,
+        listings: post.listings.map((listing) => listing.title),
+      };
+    });
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -31,8 +38,12 @@ router.get(
     try {
       const { id } = req.params;
       const host = await getHostById(id);
-
-      res.status(200).json(host);
+      const { password, ...withoutPassword } = host;
+      const result = {
+        ...host,
+        listings: host.listings.map((listing) => listing.title),
+      };
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -60,76 +71,73 @@ router.delete(
   notFoundErrorHandler
 );
 
-// // put booking
+// // put Host
 
-// router.put(
-//   "/:id",
-//   authMiddleware,
-//   async (req, res, next) => {
-//     try {
-//       const { id } = req.params;
-//       const {
-//         userId,
-//         propertyId,
-//         checkinDate,
-//         checkoutDate,
-//         numberOfGuests,
-//         totalPrice,
-//         bookingStatus,
-//       } = req.body;
-//       const updatedBooking = await updateBookingById(
-//         id,
-//         userId,
-//         propertyId,
-//         checkinDate,
-//         checkoutDate,
-//         numberOfGuests,
-//         totalPrice,
-//         bookingStatus
-//       );
-//       res.status(200).json(updatedBooking);
-//     } catch (error) {
-//       next(error);
-//     }
-//   },
-//   notFoundErrorHandler
-// );
+router.put(
+  "/:id",
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const {
+        username,
+        password,
+        name,
+        email,
+        phoneNumber,
+        profilePicture,
+        aboutMe,
+      } = req.body;
+      const updatedHost = await updateHostById(
+        id,
+        username,
+        password,
+        name,
+        email,
+        phoneNumber,
+        profilePicture,
+        aboutMe
+      );
+      res.status(200).json(updatedHost);
+    } catch (error) {
+      next(error);
+    }
+  },
+  notFoundErrorHandler
+);
 
-// // add booking (add middleware!)
+// Add host
 
-// router.post("/", authMiddleware, async (req, res, next) => {
-//   try {
-//     const {
-//       userId,
-//       propertyId,
-//       checkinDate,
-//       checkoutDate,
-//       numberOfGuests,
-//       totalPrice,
-//       bookingStatus,
-//     } = req.body;
-//     const newBooking = await createBooking(
-//       userId,
-//       propertyId,
-//       checkinDate,
-//       checkoutDate,
-//       numberOfGuests,
-//       totalPrice,
-//       bookingStatus
-//     );
-//     res.status(201).json(newBooking);
-//   } catch (error) {
-//     if (error.name === "NotFoundError") {
-//       res.status(409).json({
-//         message:
-//           "User or Property does not exist...., so can not make the Booking",
-//       });
-//     } else if (error.name === "PrismaClientValidationError") {
-//       res.status(400).json({ message: `User fault: ${error.message}` });
-//     } else {
-//       next(error);
-//     }
-//   }
-// });
+router.post("/", authMiddleware, async (req, res, next) => {
+  try {
+    const {
+      username,
+      password,
+      name,
+      email,
+      phoneNumber,
+      profilePicture,
+      aboutMe,
+    } = req.body;
+    const newUser = await createHost(
+      username,
+      password,
+      name,
+      email,
+      phoneNumber,
+      profilePicture,
+      aboutMe
+    );
+    res.status(201).json(newUser);
+  } catch (error) {
+    if (error.code === "P2002") {
+      res.status(409).json("Host already exists Bro");
+    } else if (error.name === "PrismaClientValidationError") {
+      res.status(400).json({ message: `user fault: ${error.message}` });
+    } else {
+      next(error);
+    }
+  }
+});
 
 export default router;

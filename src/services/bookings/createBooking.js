@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 import getUserById from "../users/getUserById.js";
-import notFoundErrorHandler from "../../middleware/notFoundErrorHandler.js";
 
 const createBooking = async (
   userId,
@@ -13,7 +12,7 @@ const createBooking = async (
 ) => {
   const prisma = new PrismaClient();
 
-  const checkUserId = await getUserById(userId);
+  // const checkUserId = await getUserById(userId);
 
   // Nog maken voor property!
 
